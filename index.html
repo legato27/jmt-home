@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="JMT — Dino Runner landing page." />
+  <title>JMT — Dino Runner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#020403;
+      --primary:#ff8c00;
+      --primary-dim:#e67a00;
+      --text:#ffe9d7;
+      --muted:#cda995;
+      --card:rgba(8, 4, 2, .55);
+      --glass:rgba(20, 10, 0, .38);
+      --border:rgba(255, 140, 0, .22);
+      --shadow:0 10px 35px rgba(0,0,0,.5), 0 0 80px rgba(255, 140, 0, .08);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      background: var(--bg);
+      color: var(--text);
+      overflow-x:hidden;
+    }
+    #matrix{ position:fixed; inset:0; z-index:-2; background:#000; filter: contrast(120%); opacity:.25 }
+    .vignette{ position:fixed; inset:0; z-index:-1; background: radial-gradient(1000px 600px at 70% 30%, rgba(255,140,0,.12), transparent 60%), radial-gradient(800px 800px at 10% 80%, rgba(255,140,0,.08), transparent 60%); pointer-events:none }
+
+    header{
+      position:fixed; top:0; left:0; right:0;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 22px; backdrop-filter: blur(6px);
+      background: linear-gradient(to bottom, rgba(10,6,0,.55), rgba(10,6,0,0));
+      border-bottom:1px solid var(--border);
+      z-index:10;
+    }
+    .brand{display:flex; gap:10px; align-items:center; text-decoration:none}
+    .logo{ width:36px; height:36px; border-radius:10px; display:grid; place-items:center; background:linear-gradient(135deg, rgba(255,140,0,.35), rgba(255,140,0,.1)); border:1px solid var(--border); box-shadow: var(--shadow); font-family:"Share Tech Mono", monospace; color:var(--primary) }
+    .brand span{font-weight:800; letter-spacing:.4px; color:var(--text)}
+
+    nav{display:flex; gap:10px; align-items:center}
+    .navlink{ color:var(--muted); text-decoration:none; padding:8px 12px; border-radius:10px; font-weight:600 }
+
+    main{ min-height:100svh; display:grid; place-items:center; padding:120px 20px 60px; }
+
+    .hero{ width:min(1100px, 92vw); display:grid; gap:18px; text-align:center }
+    .chip{ display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; border:1px solid var(--border); background: linear-gradient(90deg, rgba(255,140,0,.08), rgba(255,140,0,.02)); margin-inline:auto; font-family:"Share Tech Mono", monospace; color:var(--primary); box-shadow: var(--shadow) }
+    h1{ margin:0; font-size:clamp(34px, 6vw, 62px); line-height:1.05; letter-spacing:.5px; text-shadow: 0 0 24px rgba(255,140,0,.2) }
+    .lead{ color:var(--muted); font-size:clamp(14px, 2.2vw, 18px); margin:0 auto; max-width:900px }
+
+    .game-wrap{ display:grid; gap:12px; width:min(960px, 96vw); margin:10px auto 0 }
+    .game-card{ padding:16px; border-radius:20px; border:1px solid var(--border); background:var(--card); box-shadow:var(--shadow) }
+    .hud{ display:flex; justify-content:space-between; align-items:center; font-family:"Share Tech Mono", monospace; color:var(--muted); font-size:14px }
+    .kbd{ border:1px solid var(--border); padding:2px 6px; border-radius:6px; font-family:"Share Tech Mono", monospace; color:var(--text) }
+
+    canvas#dino{ width:100%; height:auto; display:block; background: linear-gradient(180deg, #0b0703, #0a0602); border-radius:14px; border:1px solid var(--border) }
+
+    footer{ display:flex; justify-content:center; padding:30px 20px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); background: linear-gradient(to top, rgba(10,6,0,.55), rgba(10,6,0,0)) }
+
+    .scanline::after{ content:""; position:absolute; inset:0; background: repeating-linear-gradient(to bottom, rgba(255,140,0,.03), rgba(255,140,0,.03) 1px, transparent 2px, transparent 4px); mix-blend-mode:screen; pointer-events:none }
+
+    @media (prefers-reduced-motion: reduce){ #matrix{ display:none } .vignette{ background:none } }
+  </style>
+</head>
+<body>
+  <canvas id="matrix" aria-hidden="true"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <header class="scanline">
+    <a class="brand" href="#" aria-label="JMT Home">
+      <div class="logo">J</div>
+      <span>JMT</span>
+    </a>
+    <nav>
+      <a class="navlink" href="#game">Game</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="game">
+      <div class="chip" role="status" aria-live="polite">▮ JMT Labs — Dino Runner</div>
+      <h1>Run, JMT, Run.</h1>
+      <p class="lead">A fast, dependency‑free Dino game for your landing page. Press <span class="kbd">Space</span> / <span class="kbd">↑</span> to jump, <span class="kbd">↓</span> to duck. On mobile: tap to jump, swipe down to duck. No buttons — just play.</p>
+
+      <div class="game-wrap">
+        <div class="hud game-card">
+          <div>Score: <span id="score">00000</span> &nbsp; • &nbsp; Best: <span id="best">00000</span></div>
+          <div id="state">Press Space to start</div>
+        </div>
+        <div class="game-card">
+          <canvas id="dino" width="900" height="260" aria-label="Dino Runner Game" role="img"></canvas>
+        </div>
+        <div class="hud game-card">
+          <div>Controls: <span class="kbd">Space</span>/<span class="kbd">↑</span> Jump · <span class="kbd">↓</span> Duck · <span class="kbd">P</span> Pause</div>
+          <div>Accessibility: honors <span class="kbd">prefers-reduced-motion</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    © <span id="year"></span> JMT. All systems nominal.
+  </footer>
+
+<script>
+(document.getElementById('year')||{}).textContent = new Date().getFullYear();
+
+(function(){
+  const canvas = document.getElementById('matrix');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduced) return;
+  let w,h,cols,size,drops,id; const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  function resize(){
+    const dpr = Math.min(devicePixelRatio||1,2); w = canvas.clientWidth = innerWidth; h = canvas.clientHeight = innerHeight; canvas.width=w*dpr; canvas.height=h*dpr; ctx.setTransform(dpr,0,0,dpr,0,0); size = Math.max(12, Math.min(20, Math.floor(w/90))); cols=Math.ceil(w/size); drops=new Array(cols).fill(0).map(()=>Math.random()*-40); ctx.font=size+"px 'Share Tech Mono', monospace";
+  }
+  function tick(){ ctx.fillStyle='rgba(10,6,0,.18)'; ctx.fillRect(0,0,w,h); for(let i=0;i<cols;i++){ const x=i*size, y=drops[i]*size, ch=alphabet[Math.random()*alphabet.length|0]; ctx.fillStyle='rgba(255,140,0,1)'; ctx.fillText(ch,x,y); ctx.fillStyle='rgba(255,140,0,.2)'; ctx.fillText(ch,x,y-size); if(y>h && Math.random()>.975) drops[i]= -Math.random()*30; drops[i]+= Math.random()*.6+.9 } id=requestAnimationFrame(tick) }
+  addEventListener('resize',resize); resize(); tick();
+})();
+
+// DINO GAME — inline implementation
+(function(){
+  const cvs = document.getElementById('dino');
+  if(!cvs) return;
+  const ctx = cvs.getContext('2d');
+  const scoreEl = document.getElementById('score');
+  const bestEl = document.getElementById('best');
+  const stateEl = document.getElementById('state');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // World
+  const W = cvs.width, H = cvs.height;
+  const GROUND_Y = 210;
+
+  // State
+  let playing=false, gameOver=false, paused=false;
+  let t=0, speed=6, score=0, best=Number(localStorage.getItem('jmt_dino_best')||0);
+  bestEl.textContent = best.toString().padStart(5,'0');
+
+  const player = { x:80, y:GROUND_Y, w:36, h:42, vy:0, onGround:true, duck:false };
+  const obs = [];
+  const clouds = [];
+
+  function reset(){
+    playing=false; gameOver=false; paused=false; t=0; speed=6; score=0;
+    obs.length=0; clouds.length=0;
+    player.y=GROUND_Y; player.vy=0; player.onGround=true; player.duck=false;
+    stateEl.textContent='Press Space to start';
+    draw();
+  }
+
+  function spawnObstacle(){
+    const type = Math.random()<0.7 ? 'cactus' : 'tall';
+    const w = type==='cactus'? 18+Math.random()*22 : 16;
+    const h = type==='cactus'? 34+Math.random()*26 : 50+Math.random()*10;
+    obs.push({ x: W+20, y: GROUND_Y - h + 2, w, h, type });
+  }
+  function spawnCloud(){ clouds.push({ x: W+20, y: 40+Math.random()*80, w: 30+Math.random()*40, h: 10+Math.random()*6, v: 0.5+Math.random()*0.6 }); }
+
+  function update(){
+    if(!playing || paused || gameOver) return;
+    t++;
+    speed = 6 + Math.min(8, t/600);
+
+    // Gravity
+    player.vy += 0.9;
+    player.y += player.vy;
+    if(player.y >= GROUND_Y){ player.y=GROUND_Y; player.vy=0; player.onGround=true; }
+
+    // Spawns
+    if(t%Math.max(40, 120 - (speed*8|0))===0) spawnObstacle();
+    if(t%180===0) spawnCloud();
+
+    // Move entities
+    for(let i=obs.length-1;i>=0;i--){ obs[i].x -= speed; if(obs[i].x < -60) obs.splice(i,1); }
+    for(let i=clouds.length-1;i>=0;i--){ clouds[i].x -= clouds[i].v; if(clouds[i].x < -80) clouds.splice(i,1); }
+
+    // Score
+    score += 0.1*speed; scoreEl.textContent = Math.floor(score).toString().padStart(5,'0');
+
+    // Collisions
+    const px=player.x, ph = player.duck? player.h*0.55 : player.h, pw = player.duck? player.w*1.1 : player.w;
+    const py=player.y - ph;
+    for(const o of obs){
+      if(px < o.x + o.w && px + pw > o.x && py < o.y + o.h && py + ph > o.y){ end(); break; }
+    }
+
+    draw();
+    requestAnimationFrame(update);
+  }
+
+  function end(){
+    gameOver=true; playing=false; stateEl.textContent='Game Over — press Space to retry';
+    if(score>best){ best=Math.floor(score); localStorage.setItem('jmt_dino_best', best); bestEl.textContent = best.toString().padStart(5,'0'); }
+    draw(true);
+  }
+
+  function draw(showOver){
+    ctx.clearRect(0,0,W,H);
+    // Ground
+    ctx.fillStyle='rgba(255,140,0,.15)';
+    ctx.fillRect(0,GROUND_Y+8,W,H-(GROUND_Y+8));
+    ctx.strokeStyle='rgba(255,140,0,.35)';
+    ctx.beginPath(); ctx.moveTo(0,GROUND_Y+0.5);
+    for(let x=0;x<W;x+=14){ ctx.lineTo(x+7,GROUND_Y+(x%28?1.5:0.5)); ctx.lineTo(x+14,GROUND_Y+0.5);} ctx.stroke();
+
+    // Clouds
+    ctx.fillStyle='rgba(255,140,0,.12)';
+    clouds.forEach(c=>{ ctx.fillRect(c.x,c.y,c.w,c.h); ctx.fillRect(c.x+c.w*0.4,c.y-6,c.w*0.8,c.h+4); });
+
+    // Player
+    const ph = player.duck? player.h*0.55 : player.h, pw = player.duck? player.w*1.1 : player.w;
+    const py = player.y - ph;
+    ctx.fillStyle='rgba(255,140,0,1)';
+    ctx.fillRect(player.x, py, pw, ph);
+    ctx.fillStyle='#000'; ctx.fillRect(player.x+pw-10, py+6, 4, 4);
+
+    // Obstacles
+    ctx.fillStyle='rgba(255,140,0,.9)';
+    obs.forEach(o=>{ ctx.fillRect(o.x,o.y,o.w,o.h); if(o.type==='cactus'){ ctx.fillRect(o.x-4, o.y+8, 4, o.h-8); ctx.fillRect(o.x+o.w, o.y+14, 4, o.h-14);} });
+
+    if(!playing){
+      ctx.fillStyle='rgba(255,140,0,.85)';
+      ctx.font = "28px 'Share Tech Mono', monospace";
+      ctx.textAlign='center';
+      ctx.fillText(showOver? 'GAME OVER' : 'TAP OR PRESS SPACE TO START', W/2, H/2 - 8);
+      if(showOver) ctx.fillText('TAP/SPACE TO RETRY', W/2, H/2 + 24);
+      ctx.textAlign='start';
+    }
+  }
+
+  function jump(){
+    if(!playing){ playing=true; gameOver=false; stateEl.textContent='Running…'; requestAnimationFrame(update); }
+    if(player.onGround){ player.vy = reduced? -10 : -13; player.onGround=false; }
+  }
+  function duck(d){ player.duck = !!d && player.onGround; }
+
+  addEventListener('keydown', e=>{
+    if(e.code==='Space'||e.code==='ArrowUp'){ e.preventDefault(); if(gameOver){ reset(); jump(); } else { jump(); } }
+    else if(e.code==='ArrowDown'){ duck(true) }
+    else if(e.code==='KeyP'){ paused=!paused; stateEl.textContent = paused? 'Paused' : 'Running…'; if(!paused) requestAnimationFrame(update); }
+  });
+  addEventListener('keyup', e=>{ if(e.code==='ArrowDown') duck(false) });
+
+  // Touch controls
+  let touchStartY=null;
+  cvs.addEventListener('touchstart', e=>{ const t=e.changedTouches[0]; touchStartY=t.clientY; if(gameOver){ reset(); jump(); } else { jump(); } }, {passive:false});
+  cvs.addEventListener('touchmove', e=>{ const y=e.changedTouches[0].clientY; if(touchStartY!==null && y - touchStartY > 24) duck(true) }, {passive:true});
+  cvs.addEventListener('touchend', ()=>{ touchStartY=null; duck(false) }, {passive:true});
+
+  reset();
+})();
+
+</script>
+</body>
+</html>
